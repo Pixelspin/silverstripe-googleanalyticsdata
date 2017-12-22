@@ -17,9 +17,26 @@ class GoogleAnalyticsHelper {
             'ga:' . self::_getFirstProfileId(),
             $startDate,
             'yesterday',
-            'ga:pageviews',
+            'ga:pageviews,ga:uniquePageviews',
             array(
                 'dimensions' => 'ga:pagePath,ga:date',
+                'max-results' => $results,
+                'start-index' => $start
+            )
+        );
+
+        return $data;
+    }
+
+    public static function getPageViewsPerWebsite($startDate, $start = 1, $results = 10000)
+    {
+        $data = self::_getAnalytics()->data_ga->get(
+            'ga:' . self::_getFirstProfileId(),
+            $startDate,
+            'yesterday',
+            'ga:pageviews,ga:uniquePageviews',
+            array(
+                'dimensions' => 'ga:date',
                 'max-results' => $results,
                 'start-index' => $start
             )
@@ -43,35 +60,20 @@ class GoogleAnalyticsHelper {
     }
 
     private static function _getFirstProfileId() {
-        // Get the user's first view (profile) ID.
-
-        // Get the list of accounts for the authorized user.
         $accounts = self::_getAnalytics()->management_accounts->listManagementAccounts();
-        var_dump( $accounts );
-        die;
-
         if (count($accounts->getItems()) > 0) {
             $items = $accounts->getItems();
             $firstAccountId = $items[0]->getId();
-
-            // Get the list of properties for the authorized user.
             $properties = self::_getAnalytics()->management_webproperties
                 ->listManagementWebproperties($firstAccountId);
-
             if (count($properties->getItems()) > 0) {
                 $items = $properties->getItems();
                 $firstPropertyId = $items[0]->getId();
-
-                // Get the list of views (profiles) for the authorized user.
                 $profiles = self::_getAnalytics()->management_profiles
                     ->listManagementProfiles($firstAccountId, $firstPropertyId);
-
                 if (count($profiles->getItems()) > 0) {
                     $items = $profiles->getItems();
-
-                    // Return the first view (profile) ID.
                     return $items[0]->getId();
-
                 } else {
                     throw new Exception('No views (profiles) found for this user.');
                 }

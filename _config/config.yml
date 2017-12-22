@@ -1,3 +1,11 @@
 ---
 Name: googleanalyticsdata
 ---
+
+SilverStripe\CMS\Model\SiteTree:
+  extensions:
+    - Pixelspin\GoogleAnalyticsData\Extensions\GoogleAnalyticsDataExtension
+
+SilverStripe\SiteConfig\SiteConfig:
+  extensions:
+    - Pixelspin\GoogleAnalyticsData\Extensions\GoogleAnalyticsDataExtension
