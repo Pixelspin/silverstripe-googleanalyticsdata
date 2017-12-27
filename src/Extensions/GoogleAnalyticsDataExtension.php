@@ -12,7 +12,8 @@ use SilverStripe\ORM\FieldType\DBField;
 use SilverStripe\View\ArrayData;
 use SilverStripe\View\ViewableData;
 
-class GoogleAnalyticsDataExtension extends DataExtension {
+class GoogleAnalyticsDataExtension extends DataExtension
+{
 
     private static $has_many = array(
         'GoogleAnalyticsData' => GoogleAnalyticsData::class
@@ -20,15 +21,19 @@ class GoogleAnalyticsDataExtension extends DataExtension {
 
     public function updateCMSFields(FieldList $fields)
     {
-        $viewer = ViewableData::create();
-        $viewer->Target = $this->owner;
-        $fields->addFieldToTab('Root.Visitors', new LiteralField('GoogleAnalyticsDataView', $viewer->renderWith('Pixelspin\GoogleAnalyticsData\GoogleAnalyticsDataView')));
+        $hide = Config::inst()->get('GoogleAnalyticsData', 'hide_data_on_page');
+        if (!$hide) {
+            $viewer = ViewableData::create();
+            $viewer->Target = $this->owner;
+            $fields->addFieldToTab('Root.Visitors', new LiteralField('GoogleAnalyticsDataView', $viewer->renderWith('Pixelspin\GoogleAnalyticsData\GoogleAnalyticsDataView')));
+        }
     }
 
-    public function getGoogleAnalyticsDataLastDays($numDays = 7){
+    public function getGoogleAnalyticsDataLastDays($numDays = 7)
+    {
         $out = new ArrayList();
         $today = (new DateTime())->modify('-1 day');
-        $minDay = (new DateTime())->modify('-'.($numDays+1).' day');
+        $minDay = (new DateTime())->modify('-' . ($numDays + 1) . ' day');
         $type = $this->owner->ClassName == 'SilverStripe\SiteConfig\SiteConfig' ? 'SiteConfigID' : 'SiteTreeID';
         $datas = GoogleAnalyticsData::get()->filter(array(
             'IsMonth' => false,
@@ -37,10 +42,10 @@ class GoogleAnalyticsDataExtension extends DataExtension {
             'Date:LessThanOrEqual' => $today->format('Y-m-d')
         ));
         $dates = array();
-        foreach($datas as $data){
+        foreach ($datas as $data) {
             $dates[$data->Date] = $data;
         }
-        for($i = 0; $i < $numDays; $i++){
+        for ($i = 0; $i < $numDays; $i++) {
             $currData = array_key_exists($today->format('Y-m-d'), $dates) ? $dates[$today->format('Y-m-d')] : false;
             $out->push(new ArrayData(array(
                 'Date' => DBField::create_field('Date', $today->format('Y-m-d')),
